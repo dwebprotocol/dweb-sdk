@@ -1,16 +1,16 @@
-# hyper-sdk
+# dweb-sdk
 
-A Software Development Kit for the [hypercore-protocol](https://hypercore-protocol.org/)
+A Software Development Kit for the [ddatabase-protocol](https://dwebx.org/)
 
-Formerly known as "dat-sdk".
+Formerly known as "dweb-sdk".
 
 ## Why use this?
 
-Hypercore-protocol and it's ecosystem consists of a bunch of low level building blocks for working with data in distributed applications. Although this modularity makes it easy to mix and match pieces, it adds complexity when it comes to actually building something.
+dDatabase protocol and it's ecosystem consists of a bunch of low level building blocks for working with data in distributed applications. Although this modularity makes it easy to mix and match pieces, it adds complexity when it comes to actually building something.
 
-The Hyper SDK combines the lower level pieces of the Hyper stack into high level APIs that you can use across platforms so that you can focus on your application rather than the gritty details of how it works.
+The dWeb SDK combines the lower level pieces of the dWeb stack into high level APIs that you can use across platforms so that you can focus on your application rather than the gritty details of how it works.
 
-The Hyper SDK can either work "natively", which means the full storage and networking stack runs directly within the SDK. Alternatively, it supports the experimental [hyperspace](https://github.com/hypercore-protocol/hyperspace) daemon. In this mode, the SDK needs a hyperspace daemon running and will connect to it as a client.
+The dWeb SDK can either work "natively", which means the full storage and networking stack runs directly within the SDK. Alternatively, it supports the experimental [hyperspace](https://github.com/dwebprotocol/dhub) daemon. In this mode, the SDK needs a hyperspace daemon running and will connect to it as a client.
 
 ## Goals
 
@@ -28,11 +28,11 @@ The Hyper SDK can either work "natively", which means the full storage and netwo
 [Node.js](https://nodejs.org/) / [Browserify](http://browserify.org/) workflows:
 
 ```shell
-npm install --save hyper-sdk
+npm install --save dweb-sdk
 ```
 
 ```js
-const SDK = require('hyper-sdk')
+const SDK = require('dweb-sdk')
 ```
 
 ## Building a bundle for Browsers
@@ -40,20 +40,20 @@ const SDK = require('hyper-sdk')
 The easiest way to get started is to run the `build` command in this `sdk`, then copy the `bundle.js` into your own project. Here's how:
 
 ```shell
-git clone git@github.com:datproject/sdk.git
+git clone git@github.com:dwebprotocol/dweb-sdk.git
 
 cd sdk
 
 # Compile the SDK into a single JS file
 npm run build
 
-# Copy `hyper-sdk-bundle.js` into your project
+# Copy `dweb-sdk-bundle.js` into your project
 ```
 
 ```html
-<script src="hyper-sdk-bundle.js"></script>
+<script src="dweb-sdk-bundle.js"></script>
 <script>
-  const SDK = window.hyperSDK
+  const SDK = window.dwebSDK
   // Look at the examples from here
 </script>
 ```
@@ -75,10 +75,10 @@ npm install --save-dev browserify babelify util
 ```
 and the regular dependencies
 ```
-npm install --save hyper-sdk@latest @geut/sodium-javascript-plus hyperswarm-web
+npm install --save dweb-sdk@latest @geut/sodium-javascript-plus dswarm-web
 ```
 
-Add this as the `build` command in your `package.json`. It is important to add the transform (`-t`) with `babelify` to make it work. Babel will use the aliases in the [babel.config.json](https://github.com/datproject/sdk/blob/master/babel.config.json) file to change the code from nodejs to browser.
+Add this as the `build` command in your `package.json`. It is important to add the transform (`-t`) with `babelify` to make it work. Babel will use the aliases in the [babel.config.json](https://github.com/dwebprotocol/dweb-sdk/blob/master/babel.config.json) file to change the code from nodejs to browser.
 
 ```shell
 "build": "browserify -t [ babelify --global ] index.js > bundle.js"
@@ -99,7 +99,7 @@ module.exports = {
   resolve: {
     alias: {
       fs: 'graceful-fs',
-      hyperswarm: 'hyperswarm-web',
+      dswarm: 'dswarm-web',
       util: './node_modules/util/util.js'
     }
   },
@@ -115,7 +115,7 @@ Then you can include `./dist/bundle.js` in your HTML page.
 ## API/Examples
 
 ```js
-const SDK = require('hyper-sdk')
+const SDK = require('dweb-sdk')
 
 const sdk = await SDK({
   // With this, all drive will disappear after the process exits
@@ -129,50 +129,50 @@ const sdk = await SDK({
 });
 
 const {
-	Hypercore,
-	Hyperdrive,
+	DDatabase,
+	DDrive,
 	resolveName,
 	close
 } = sdk
 
-// Create a new Hyperdrive.
+// Create a new DDrive.
 // If you want to create a new drive, pass in a name for it
 // This will be used to derive a secret key
 // Every time you open a drive with that name it'll derive the same key
 // This uses a master key that's generated once per device
 // That means the same name will yield a different key on a different machine
-const drive = Hyperdrive('My drive name')
+const drive = DDrive('My drive name')
 
 // You should wait for the drive to be totally initialized
 await drive.ready()
 
-const url = `hyper://${drive.key.toString('hex')}`
+const url = `dweb://${drive.key.toString('hex')}`
 
 // TODO: Save this for later!
 console.log(`Here's your URL: ${url}`)
 
-// Check out the hyperdrive docs for what you can do with it
-// https://www.npmjs.com/package/hyperdrive#api
+// Check out the dDrive docs for what you can do with it
+// https://www.npmjs.com/package/ddrive#api
 await drive.writeFile('/example.txt', 'Hello World!')
 console.log('Written example file!')
 
-const key = await resolveName('hyper://blog.mauve.moe')
-const drive = Hyperdrive(key)
+const key = await resolveName('dweb://dweb.d')
+const drive = DDrive(key)
 await drive.download()
 
 // Delete all the data
 await drive.destroyStorage()
 
-const SOME_URL = 'dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/'
+const SOME_URL = 'dweb://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/'
 
-const somedrive = Hyperdrive(SOME_URL)
+const somedrive = DDrive(SOME_URL)
 
 console.log(await somedrive.readdir('/'))
 
-// Create a hypercore
-// Check out the hypercore docs for what you can do with it
-// https://github.com/mafintosh/hypercore
-const myCore = Hypercore('my hypercore name', {
+// Create a ddatabase
+// Check out the ddatabase docs for what you can do with it
+// https://github.com/dwebprotocol/ddatabase
+const myBase = DDatabase('my ddatabase name', {
   valueEncoding: 'json',
   persist: false,
   // storage can be set to an instance of `random-access-*`
@@ -183,45 +183,45 @@ const myCore = Hypercore('my hypercore name', {
 })
 
 // Add some data to it
-await myCore.append(JSON.stringify({
+await myBase.append(JSON.stringify({
   name: 'Alice'
 }))
 
 // Use extension messages for sending extra data over the p2p connection
-const discoveryCoreKey = 'dat://bee80ff3a4ee5e727dc44197cb9d25bf8f19d50b0f3ad2984cfe5b7d14e75de7'
-const discoveryCore = new Hypercore(discoveryCoreKey)
+const discoveryBaseKey = 'dweb://bee80ff3a4ee5e727dc44197cb9d25bf8f19d50b0f3ad2984cfe5b7d14e75de7'
+const discoveryBase = new DDatabase(discoveryBaseKey)
 
 // Register the extension message handler
-const extension = discoveryCore.registerExtension('discovery', {
+const extension = discoveryBase.registerExtension('discovery', {
 	// Set the encoding type for messages
 	encoding: 'binary',
 	onmessage: (message, peer) => {
 		// Recieved messages will be automatically decoded
 		console.log('Got key from peer!', message)
 
-		const otherCore = new Hypercore(message, {
+		const otherBase = new DDatabase(message, {
       valueEncoding: 'json',
       persist: false
     })
 
-    // Render the peer's data from their core
-    otherCore.get(0, console.log)
+    // Render the peer's data from their base
+    otherBase.get(0, console.log)
 	}
 })
 
-// When you find a peer tell them about your core
-discoveryCore.on('peer-add', (peer) => {
+// When you find a peer tell them about your base
+discoveryBase.on('peer-add', (peer) => {
 	console.log('Got a peer!')
-	extension.send(myCore.key, peer)
+	extension.send(myBase.key, peer)
 })
 
-const hypertrie = require('hypertrie')
+const dwebtrie = require('dwebtrie')
 
 // Pass in hypercores from the SDK into other data structures
-// Check out what you can do with hypertrie from there:
-// https://github.com/mafintosh/hypertrie
-const trie = hypertrie(null, {
-  feed: new Hypercore('my trie core', {
+// Check out what you can do with dwebtrie from there:
+// https://github.com/dwebprotocol/dwebtrie
+const trie = dwebtrie(null, {
+  feed: new DDatabase('my trie base', {
     persist: false
   })
 })
@@ -241,68 +241,68 @@ All available tests are run three times: For the native backend, for the hypersp
 
 To run tests in Node.js simply run `npm run test` in a checkout.
 
-To run the tests in a browser, first run `npm run build-test` to build the test bundle. Then, run `npm run test-proxy` to run both a [hyperswarm-web](https://github.com/RangerMauve/hyperswarm-web) proxy and two Hyperspace servers that listen for clients on a websocket. Finally, open [`test.html`](test.html) in a web browser and open the developer tools, where you should see the test results in the console.
+To run the tests in a browser, first run `npm run build-test` to build the test bundle. Then, run `npm run test-proxy` to run both a [dwebswarm-web](https://github.com/dwebprotocol/dswarm-web) proxy and two dHub servers that listen for clients on a websocket. Finally, open [`test.html`](test.html) in a web browser and open the developer tools, where you should see the test results in the console.
 
 ## API
 
 The API supports both promises and callbacks. Everywhere where you see `await`, you can instead pass a node-style callback.
 
-### const SDK = require('hyper-sdk')
+### const SDK = require('dweb-sdk')
 
 Import the SDK contructor using the *native* backend. This means that the full storage and networking stack runs right within the current process. Works both in Node.js and in web browsers.
 
-When running in a web browser, it needs a [hyperswarm-web](https://github.com/RangerMauve/hyperswarm-web) proxy for peer to peer connectivity.
+When running in a web browser, it needs a [dwebswarm-web](https://github.com/dwebprotocol/dswarm-web) proxy for peer to peer connectivity.
 
-### const SDK = require('hyper-sdk/hyperspace')
+### const SDK = require('dweb-sdk/dhub')
 
 Import the SDK contructor using the experimental *hyperspace* backend. Here, the SDK needs a running hyperspace server.
 
-When running in NodeJS, this will attempt to connect to a hyperspace server running on the same machine. When running in a web browser, this will attempt to connect to a Hyperspace server over Websockets (experimental).
+When running in NodeJS, this will attempt to connect to a hyperspace server running on the same machine. When running in a web browser, this will attempt to connect to a dHub server over Websockets (experimental).
 
-*TODO:* Document how to run a Websocket Hyperspace server.
+*TODO:* Document how to run a Websocket dHub server.
 
 *NOTE:* The *hyperspace* backend does not yet support the `deriveSecret` function (will throw an exception if used).
 
-### `const {Hypercore, Hyperdrive, resolveName, keyPair, deriveSecret, registerExtension, close} = await SDK(opts?)`
+### `const {DDatabase, DDrive, resolveName, keyPair, deriveSecret, registerExtension, close} = await SDK(opts?)`
 
-Creates an instance of the Hyper SDK based on the options.
+Creates an instance of the dWeb SDK based on the options.
 
 Options for the *native* backend:
 
 - `opts.applicationName`: An optional name for the application using the SDK. This will automatically silo your data from other applications using the SDK and will store it in the appropriate place using [random-access-application](https://github.com/RangerMauve/random-access-application/)
-- `opts.persist: true`: An optional arg for whether data should be persisted. Set this to `false` if you want stuff stored in memory. Ignored if you pass in a custom storage or corestore.
+- `opts.persist: true`: An optional arg for whether data should be persisted. Set this to `false` if you want stuff stored in memory. Ignored if you pass in a custom storage or basestore.
 - `opts.storage`: An optional [random-access-storage](https://github.com/random-access-storage/random-access-storage) instance for storing data
-- `opts.swarmOpts`: This lets you configure [hyperswarm](https://github.com/hyperswarm/hyperswarm) and [hyperswarm-web](https://github.com/RangerMauve/hyperswarm-web)
+- `opts.swarmOpts`: This lets you configure [dswarm](https://github.com/dwebprotocol/dswarm) and [dwebswarm-web](https://github.com/dwebprotocol/dswarm-web)
   - `maxPeers`: The maximum number of connections to keep for this swarm.
   - `ephemeral **Node**`: Set to `false` if this is going to be in a long running process on a server.
-  - `bootstap **Node**`: An array of addresses to use for the DHT bootstraping. Defaults to `['bootstrap1.hyperdht.org:49737', 'bootstrap2.hyperdht.org:49737', 'bootstrap3.hyperdht.org:49737']`
-  - `preferredPort: 42666 **Node**`: The port hyperswarm should try to bind on. You should allow it through your firewall on TCP/UDP for best results.
-  - `webrtcBootstrap **Browser**: ['https://geut-webrtc-signal.herokuapp.com/'] **BROWSER**`: The WebRTC bootstrap server list used by [discovery-swarm-webrtc](https://github.com/geut/discovery-swarm-webrtc)
-  - `wsProxy **Browser**: 'wss://hyperswarm.mauve.moe' **BROWSER**`: The Websocket proxy used for [hyperswarm-proxy-ws](https://github.com/RangerMauve/hyperswarm-proxy-ws)
+  - `bootstap **Node**`: An array of addresses to use for the DHT bootstraping. Defaults to `['dht1.dwebx.net:49737', 'dht2.dwebx.net:49737', 'dht3.dwebx.net:49737']`
+  - `preferredPort: 42666 **Node**`: The port dswarm should try to bind on. You should allow it through your firewall on TCP/UDP for best results.
+  - `webrtcBootstrap **Browser**: ['https://webrtc-signal.dwebx.net/'] **BROWSER**`: The WebRTC bootstrap server list used by [discovery-swarm-webrtc](https://github.com/geut/discovery-swarm-webrtc)
+  - `wsProxy **Browser**: 'wss://dswarm.dwebx.net' **BROWSER**`: The Websocket proxy used for [dswarm-proxy-ws](https://github.com/dwebprotocol/dswarm-proxy-ws)
 
 Options for the *hyperspace* backend:
 
-- `opts.hyperspaceOpts` Options to initialize the connection to a hyperspace server.
-    - `client`: An optional [@hyperspace/client](https://github.com/hypercore-protocol/hyperspace-client) instance. If not set a client will be created automatically.
+- `opts.dhubOpts` Options to initialize the connection to a hyperspace server.
+    - `client`: An optional [@dhub/client](https://github.com/dwebprotocol/dhub-client) instance. If not set a client will be created automatically.
     - `protocol`: The protocol to use. Defaults to `ws` in browsers and `uds` in Node.js.
     - `port`: If using the `ws` protocol: Port of the Websocket to connect to (default `9000`)
     - `host`: For `ws` protocol: Hostname of the Websocket to connect to (default `localhost`). For `uds` protocol: Name of the socket (default `hyperspace`).
 
 Options for all backends:
 
-- `opts.corestore`: An optional [Corestore](https://github.com/andrewosh/corestore) instance for using as hypercore storage.
-- `opts.corestoreOpts`: Options to pass into Corestore when it's initialized.
-- `opts.coreOpts`: This lets you configure the behavior of [Hypercore](https://github.com/mafintosh/hypercore) instances
+- `opts.basestore`: An optional [Basestore](https://github.com/dwebprotocol/basestore) instance for using as ddatabase storage.
+- `opts.corestoreOpts`: Options to pass into Basestore when it's initialized.
+- `opts.coreOpts`: This lets you configure the behavior of [DDatabase](https://github.com/dwebprotocol/ddatabase) instances
   - `sparse: true`: Whether the history should be loaded on the fly instead of replicating the full history
   - `extensions`: The set of extension message types to use with this feed when replicating.
-  - `valueEncoding: 'json' | 'utf-8' | 'binary'`: The encoding to use for the data stored in the hypercore. Use JSON to store / retrieve objects.
-- `opts.driveOpts`: This lets you configure the behavior of [Hyperdrive](https://github.com/mafintosh/hyperdrive) instances
+  - `valueEncoding: 'json' | 'utf-8' | 'binary'`: The encoding to use for the data stored in the ddatabase. Use JSON to store / retrieve objects.
+- `opts.driveOpts`: This lets you configure the behavior of [dDrive](https://github.com/dwebprotocol/ddrive) instances
   - `sparse: true`: Whether the history should be loaded on the fly instead of replicating the full history
-- `opts.dnsOpts`: Configure the [dat dns](https://github.com/datprotocol/dat-dns) resolution module. You probably shouldn't mess with this.
+- `opts.dnsOpts`: Configure the [dWeb DNS](https://github.com/dwebprotocol/dweb-dns) resolution module. You probably shouldn't mess with this.
   - `recordName: 'dat'`: name of .well-known file
-  - `protocolRegex: /^dat:\/\/([0-9a-f]{64})/i`: RegExp object for custom protocol
+  - `protocolRegex: /^dweb:\/\/([0-9a-f]{64})/i`: RegExp object for custom protocol
   - `hashRegex: /^[0-9a-f]{64}?$/i`: RegExp object for custom hash i.e.
-  - `txtRegex: /"?datkey=([0-9a-f]{64})"?/i`: RegExp object for DNS TXT record of custom protocol
+  - `txtRegex: /"?dwebkey=([0-9a-f]{64})"?/i`: RegExp object for DNS TXT record of custom protocol
 
 ### `await close()`
 
@@ -310,10 +310,10 @@ This closes all resources used by the SDK so you can safely end your process. `c
 
 ### `const key = await resolveName(url)`
 
-Resolve a DNS name to a Hypercore key.
+Resolve a DNS name to a DDatabase key.
 
-  - `url` is a `hyper://` URL like `hyper://blog.mauve.moe`
-  - `key` will be the key that you can pass to `Hyperdrive`
+  - `url` is a `dweb://` URL like `dweb://dweb.d`
+  - `key` will be the key that you can pass to `DDrive`
 
 ### `const {publicKey, secretKey} = keyPair`
 
@@ -338,19 +338,19 @@ Listens on extension messages of type `name` on the feeds replication channels.
 You can respond to messages with `extension.send(message, peer)`.
 You can also broadcast out messages to all peers with `extension.broadcast(message)`
 
-### `const drive = Hyperdrive(keyOrName, opts)`
+### `const drive = DDrive(keyOrName, opts)`
 
-This initializes a Hyperdrive, the SDK will begin finding peers for it and will de-duplicate calls to initializing the same drive more than once.
+This initializes a DDrive, the SDK will begin finding peers for it and will de-duplicate calls to initializing the same drive more than once.
 
-- `keyOrName`: This **must** be provided. It's either a `hyper://` URL / key or a string identifying the name. If you want to have a writable drive, you can use the name to generate one and use the name later to get the same drive back without having to save the key somewhere.
-- `opts`: These are the options for configuring the hyperdrive.
+- `keyOrName`: This **must** be provided. It's either a `dweb://` URL / key or a string identifying the name. If you want to have a writable drive, you can use the name to generate one and use the name later to get the same drive back without having to save the key somewhere.
+- `opts`: These are the options for configuring the ddrive.
   - `sparse: true`: Whether the history should be loaded on the fly instead of replicating the full history
   - `secretKey`: A secret key for granting write access. This can be useful when restoring backups.
 	- `discoveryKey`: Optionally specify which discovery key you'd like to use for finding peers for this drive.
 	- `lookup: true`: Specify whether you wish to lookup peers for this drive. Set `false` along with `announce` to avoid advertising
 	- `announce: true`: Specify whether you wish to advertise yourself as having the drive.
 
-The rest of the Hyperdrive docs were taken from the [Hyperdrive README](https://github.com/mafintosh/hyperdrive/blob/v9/README.md). Note that we're wrapping over the APIs with [Hyperdrive-Promise](https://github.com/geut/hyperdrive-promise) so any callback methods can be `await`ed instead.
+The rest of the DDrive docs were taken from the [DDrive README](https://github.com/dwebprotocol/ddrive/blob/v9/README.md). Note that we're wrapping over the APIs with [DDrive-Promise](https://github.com/geut/ddrive-promise) so any callback methods can be `await`ed instead.
 
 #### `drive.version`
 
@@ -398,8 +398,8 @@ Checkout a readonly copy of the drive at an old version. Options are used to con
 
 ```js
 {
-  metadataStorageCacheSize: 65536 // how many entries to use in the metadata hypercore's LRU cache
-  contentStorageCacheSize: 65536 // how many entries to use in the content hypercore's LRU cache
+  metadataStorageCacheSize: 65536 // how many entries to use in the metadata ddatabase's LRU cache
+  contentStorageCacheSize: 65536 // how many entries to use in the content ddatabase's LRU cache
   treeCacheSize: 65536 // how many entries to use in the append-tree's LRU cache
 }
 ```
@@ -600,21 +600,21 @@ Close a file. Similar to fs.close.
 
 Closes all open resources used by the drive.
 The drive should no longer be used after calling this.
-If you load this hyperdrive's key more than once at once, `close()` will be a noop until all handles invoke it.
+If you load this ddrive's key more than once at once, `close()` will be a noop until all handles invoke it.
 
 #### `await drive.destroyStorage()`
 
 Closes all resources used by the drive, and destroys its data from storage.
 The drive should no longer be used after calling this.
 
-### `const feed = Hypercore(keyOrName, opts)`
+### `const feed = DDatabase(keyOrName, opts)`
 
-Initializes a Hypercore (aka Feed) and begins replicating it.
+Initializes a DDatabase (aka Feed) and begins replicating it.
 
-- `keyOrName`: This **must** be provided. It's either a `hyper://` URL / key or a string identifying the name of the feed. If you want to have a writable feed, you can use the name to generate one and use the name later to get the same feed back without having to save the key somewhere.
+- `keyOrName`: This **must** be provided. It's either a `dweb://` URL / key or a string identifying the name of the feed. If you want to have a writable feed, you can use the name to generate one and use the name later to get the same feed back without having to save the key somewhere.
 - `opts`: The options for configuring this feed
   - `sparse: true`: Whether the history should be loaded on the fly instead of replicating the full history
-  - `valueEncoding: 'json' | 'utf-8' | 'binary'`: The encoding to use for the data stored in the hypercore. Use JSON to store / retrieve objects.
+  - `valueEncoding: 'json' | 'utf-8' | 'binary'`: The encoding to use for the data stored in the ddatabase. Use JSON to store / retrieve objects.
   - `secretKey`: The secret key to use for the feed. Useful for restoring from backups.
 	- `discoveryKey`: Optionally specify which discovery key you'd like to use for finding peers for this feed.
 	- `lookup: true`: Specify whether you wish to lookup peers for this feed. Set to `false` along with `announce` to avoid advertising.
@@ -932,7 +932,7 @@ https://github.com/webrtcHacks/adapter
 E.g. In the browser code:
 
   `<script src="lib/adaptor.js"></script>
-  <script src="lib/hyper-sdk-bundle.js"></script>`
+  <script src="lib/dweb-sdk-bundle.js"></script>`
 
 ---
 
