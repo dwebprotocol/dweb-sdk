@@ -3,22 +3,22 @@ const path = require('path')
 // This is a dirty hack for browserify to work. 😅
 if (!path.posix) path.posix = path
 
-const DatEncoding = require('dat-encoding')
-const datDNS = require('dat-dns')
-const hyperdrive = require('hyperdrive')
-const makeHypercorePromise = require('@geut/hypercore-promise')
-const makeHyperdrivePromise = require('@geut/hyperdrive-promise')
+const DWebEncoding = require('dwebx-encoding')
+const dwebdns = require('dwebx-dns')
+const ddrive = require('ddrive')
+const makeDDatabasePromise = require('@dwebcore/ddatabase-promise')
+const makeDDrivePromise = require('@dwebcore/ddrive-promise')
 
 const DEFAULT_DRIVE_OPTS = {
   sparse: true,
   persist: true
 }
-const DEFAULT_CORE_OPTS = {
+const DEFAULT_BASE_OPTS = {
   sparse: true,
   persist: true
 }
 const DEFAULT_DNS_OPTS = {}
-const DEFAULT_APPLICATION_NAME = 'dat-sdk'
+const DEFAULT_APPLICATION_NAME = 'dweb-sdk'
 
 const CLOSE_FN = Symbol('close')
 const HANDLE_COUNT = Symbol('closeCount')
@@ -26,7 +26,7 @@ const HANDLE_COUNT = Symbol('closeCount')
 module.exports = SDK
 module.exports.DEFAULT_APPLICATION_NAME = DEFAULT_APPLICATION_NAME
 
-// TODO: Set up Promise API based on Beaker https://github.com/beakerbrowser/beaker/blob/blue-hyperdrive10/app/bg/web-apis/fg/hyperdrive.js
+// TODO: Set up Promise API based on dBrowser https://github.com/dbrowser/dbrowser/blob/master/app/bg/web-apis/fg/ddrive.js
 
 async function SDK (opts = {}) {
   if (!opts.backend) throw new Error('No backend was passed in')
@@ -41,29 +41,29 @@ async function SDK (opts = {}) {
   const {
     backend,
     driveOpts,
-    coreOpts,
+    baseOpts,
     dnsOpts
   } = opts
 
-  const dns = datDNS(Object.assign({}, DEFAULT_DNS_OPTS, dnsOpts))
+  const dns = dwebdns(Object.assign({}, DEFAULT_DNS_OPTS, dnsOpts))
 
   const handlers = await backend(opts)
   const {
     storage,
-    corestore,
+    basestore,
     swarm,
     deriveSecret,
     keyPair
   } = handlers
 
-  await corestore.ready()
+  await basestore.ready()
 
   const drives = new Map()
-  const cores = new Map()
+  const bases = new Map()
 
   return {
-    Hyperdrive,
-    Hypercore,
+    DDrive,
+    DDatabase,
     resolveName,
     getIdentity,
     deriveSecret,
@@ -71,7 +71,7 @@ async function SDK (opts = {}) {
     close,
     get keyPair () { return keyPair },
     _storage: storage,
-    _corestore: corestore,
+    _basestore: basestore,
     _swarm: swarm,
     _dns: dns
   }
@@ -86,8 +86,8 @@ async function SDK (opts = {}) {
       drive.close()
     }
 
-    for (const core of cores.values()) {
-      core.close()
+    for (const base of bases.values()) {
+      base.close()
     }
 
     if (handlers.close) handlers.close(cb)
@@ -102,7 +102,7 @@ async function SDK (opts = {}) {
     return swarm.registerExtension(name, handlers)
   }
 
-  function Hyperdrive (nameOrKey, opts) {
+  function DDrive (nameOrKey, opts) {
     if (!nameOrKey) throw new Error('Must give a name or key in the constructor')
 
     opts = Object.assign({}, DEFAULT_DRIVE_OPTS, driveOpts, opts)
@@ -117,8 +117,8 @@ async function SDK (opts = {}) {
 
     if (name) opts.namespace = name
 
-    const drive = hyperdrive(corestore, key, opts)
-    const wrappedDrive = makeHyperdrivePromise(drive)
+    const drive = ddrive(basestore, key, opts)
+    const wrappedDrive = makeDDrivePromise(drive)
 
     drive[HANDLE_COUNT] = 0
 
@@ -165,57 +165,57 @@ async function SDK (opts = {}) {
     return wrappedDrive
   }
 
-  function Hypercore (nameOrKey, opts) {
+  function DDatabase (nameOrKey, opts) {
     if (!nameOrKey) throw new Error('Must give a name or key in the constructor')
 
-    opts = Object.assign({}, DEFAULT_CORE_OPTS, coreOpts, opts)
+    opts = Object.assign({}, DEFAULT_BASE_OPTS, baseOpts, opts)
 
     const { key, name, id } = resolveNameOrKey(nameOrKey)
 
-    if (cores.has(id)) {
-      const existing = cores.get(id)
+    if (bases.has(id)) {
+      const existing = bases.get(id)
       existing[HANDLE_COUNT]++
       return existing
     }
 
-    let core
+    let base
     if (key) {
-      // If a dat key was provided, get it from the corestore
-      core = corestore.get({ ...opts, key })
+      // If a dWeb key  was provided, get it from the basestore
+      base = basestore.get({ ...opts, key })
     } else {
-      // If no dat key was provided, but a name was given, use it as a namespace
-      core = corestore.namespace(name).default(opts)
+      // If no dWeb key  was provided, but a name was given, use it as a namespace
+      base = basestore.namespace(name).default(opts)
     }
 
     // Wrap with promises
-    const wrappedCore = makeHypercorePromise(core)
+    const wrappedBase = makeDDatabasePromise(base)
 
-    core[HANDLE_COUNT] = 0
+    base[HANDLE_COUNT] = 0
 
-    core.close = function (cb) {
+    base.close = function (cb) {
       if (!cb) cb = function noop () {}
-      const hasHandles = wrappedCore[HANDLE_COUNT]--
+      const hasHandles = wrappedBase[HANDLE_COUNT]--
       if (hasHandles === 0) {
         setTimeout(() => {
-          let promise = core._close(cb)
+          let promise = base._close(cb)
           if (promise && promise.then) promise.then(cb, cb)
         }, 0)
       } else if (cb) setTimeout(cb, 0)
     }
 
-    cores.set(id, wrappedCore)
+    bases.set(id, wrappedBase)
 
     if (!key) {
-      core.ready(() => {
-        const key = core.key
+      base.ready(() => {
+        const key = base.key
         const stringKey = key.toString('hex')
-        cores.set(stringKey, wrappedCore)
+        bases.set(stringKey, wrappedBase)
       })
     }
 
-    core.ready(() => {
+    base.ready(() => {
       const {
-        discoveryKey = core.discoveryKey,
+        discoveryKey = base.discoveryKey,
         lookup = true,
         announce = true
       } = opts
@@ -225,28 +225,28 @@ async function SDK (opts = {}) {
       swarm.configure(discoveryKey, { announce, lookup })
     })
 
-    core.once('close', () => {
-      const { discoveryKey = core.discoveryKey } = opts
-      const key = core.key
+    base.once('close', () => {
+      const { discoveryKey = base.discoveryKey } = opts
+      const key = base.key
       const stringKey = key.toString('hex')
 
       swarm.configure(discoveryKey, { announce: false, lookup: false })
 
-      cores.delete(stringKey)
-      cores.delete(id)
+      bases.delete(stringKey)
+      bases.delete(id)
     })
 
-    return wrappedCore
+    return wrappedBase
   }
 
   function resolveNameOrKey (nameOrKey) {
     let key, name, id
     try {
-      key = DatEncoding.decode(nameOrKey)
+      key = DWebEncoding.decode(nameOrKey)
       id = key.toString('hex')
-      // Normalize keys to be hex strings of the key instead of dat URLs
+      // Normalize keys to be hex strings of the key instead of dWeb URLs
     } catch (e) {
-      // Probably isn't a `dat://` URL, so it must be a name
+      // Probably isn't a `dweb://` URL, so it must be a name
       name = nameOrKey
       id = name
     }

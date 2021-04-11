@@ -1,6 +1,6 @@
 const tmp = require('tmp-promise')
-const dht = require('@hyperswarm/dht')
-const HyperspaceServer = require('hyperspace/server')
+const dht = require('@dswarm/dht')
+const DHubServer = require('dhub/server')
 const webnet = require('webnet')
 
 const n = parseInt(process.argv[2]) || 2
@@ -13,12 +13,12 @@ async function main (n) {
 }
 
 async function createOne (opts = {}) {
-  const tmpDir = opts.dir || await tmp.dir({ prefix: 'dat-sdk-hyperspace', unsafeCleanup: true })
+  const tmpDir = opts.dir || await tmp.dir({ prefix: 'dweb-sdk-dhub', unsafeCleanup: true })
   const webnetServer = webnet.createServer()
   webnetServer.on('listening', () => {
-    console.log(`Hyperspace server listening on ws://localhost:${opts.port}`)
+    console.log(`dHub server listening on ws://localhost:${opts.port}`)
   })
-  const server = new HyperspaceServer({
+  const server = new DHubServer({
     ...opts,
     server: webnetServer,
     storage: tmpDir.path,

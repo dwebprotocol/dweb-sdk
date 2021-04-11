@@ -32,13 +32,13 @@ function getNewStorage () {
     return RAA(name)
   } else {
     return require('tmp').dirSync({
-      prefix: 'dat-sdk-tests-'
+      prefix: 'dweb-sdk-tests-'
     }).name
   }
 }
 
 async function createDHT () {
-  const bootstrapper = require('@hyperswarm/dht')({
+  const bootstrapper = require('@dswarm/dht')({
     bootstrap: false
   })
   bootstrapper.listen()

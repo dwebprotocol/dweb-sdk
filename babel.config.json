@@ -3,8 +3,8 @@
     "@babel/plugin-proposal-class-properties",
     ["module-resolver", {
       "alias": {
-        "dat-dns": "./dns-web.js",
-        "hyperswarm": "hyperswarm-web",
+        "dweb-dns": "./dns-web.js",
+        "dswarm": "dswarm-web",
         "util" : "./node_modules/util/util.js",
         "net": "webnet"
       }

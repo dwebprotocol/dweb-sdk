@@ -1,25 +1,25 @@
-const HyperspaceClient = require('@hyperspace/client')
+const DHubClient = require('@dhub/client')
 const { connect } = require('webnet')
 const SDK = require('./sdk')
 
 const isBrowser = process.title === 'browser'
 
 module.exports = async function createSDK (opts) {
-  return SDK({ ...opts, backend: hyperspaceBackend })
+  return SDK({ ...opts, backend: dhubBackend })
 }
-module.exports.createBackend = hyperspaceBackend
+module.exports.createBackend = dhubBackend
 
-async function hyperspaceBackend (opts) {
+async function dhubBackend (opts) {
   let {
-    corestore,
-    hyperspaceOpts = {}
+    basestore,
+    dhubOpts = {}
   } = opts
 
-  let hyperspaceClient
-  if (!corestore) {
-    let { client, protocol, port, host } = hyperspaceOpts
+  let dhubClient
+  if (!basestore) {
+    let { client, protocol, port, host } = dhubOpts
     if (client) {
-      hyperspaceClient = client
+      dhubClient = client
     } else {
       if (!protocol) {
         protocol = isBrowser ? 'ws' : 'uds'
@@ -31,18 +31,18 @@ async function hyperspaceBackend (opts) {
       } else if (protocol === 'uds') {
         clientOpts = { host, port }
       }
-      hyperspaceClient = new HyperspaceClient(clientOpts)
+      dhubClient = new DHubClient(clientOpts)
     }
-    await hyperspaceClient.ready()
-    corestore = hyperspaceClient.corestore()
+    await dhubClient.ready()
+    basestore = dhubClient.basestore()
   }
 
-  await hyperspaceClient.network.ready()
-  const swarm = hyperspaceClient.network
-  const keyPair = hyperspaceClient.network.keyPair
+  await dhubClient.network.ready()
+  const swarm = dhubClient.network
+  const keyPair = dhubClient.network.keyPair
 
   return {
-    corestore,
+    basestore,
     swarm,
     keyPair,
     deriveSecret,
@@ -54,6 +54,6 @@ async function hyperspaceBackend (opts) {
   }
 
   function close (cb) {
-    corestore.close(cb)
+    basestore.close(cb)
   }
 }

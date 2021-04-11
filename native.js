@@ -1,15 +1,15 @@
-const SwarmNetworker = require('@corestore/networker')
+const SwarmNetworker = require('@basestore/networker')
 const RAA = require('random-access-application')
 const RAM = require('random-access-memory')
-const HypercoreProtocol = require('hypercore-protocol')
-const Corestore = require('corestore')
+const DDatabaseProtocol = require('@ddatabase/protocol')
+const Basestore = require('basestorex')
 const SDK = require('./sdk')
 
 const DEFAULT_SWARM_OPTS = {
   extensions: [],
   preferredPort: 42666
 }
-const DEFAULT_CORESTORE_OPTS = {
+const DEFAULT_BASESTORE_OPTS = {
   sparse: true
 }
 
@@ -21,15 +21,15 @@ module.exports.createBackend = nativeBackend
 async function nativeBackend (opts) {
   let {
     storage,
-    corestore,
+    basestore,
     applicationName,
     persist,
     swarmOpts,
-    corestoreOpts
+    basestoreOpts
   } = opts
   // Derive storage if it isn't provided
-  // Don't derive if corestore was provided
-  if (!storage && !corestore) {
+  // Don't derive if basestore was provided
+  if (!storage && !basestore) {
     if (persist !== false) {
       storage = RAA(applicationName)
     } else {
@@ -38,26 +38,26 @@ async function nativeBackend (opts) {
     }
   }
 
-  if (!corestore) {
-    corestore = new Corestore(
+  if (!basestore) {
+    basestore = new Basestore(
       storage,
-      Object.assign({}, DEFAULT_CORESTORE_OPTS, corestoreOpts)
+      Object.assign({}, DEFAULT_BASESTORE_OPTS, basestoreOpts)
     )
   }
 
-  // The corestore needs to be opened before creating the swarm.
-  await corestore.ready()
+  // The basestore needs to be opened before creating the swarm.
+  await basestore.ready()
 
   // I think this is used to create a persisted identity?
   // Needs to be created before the swarm so that it can be passed in
   const noiseSeed = await deriveSecret(applicationName, 'replication-keypair')
-  const keyPair = HypercoreProtocol.keyPair(noiseSeed)
+  const keyPair = DDatabaseProtocol.keyPair(noiseSeed)
 
-  const swarm = new SwarmNetworker(corestore, Object.assign({ keyPair }, DEFAULT_SWARM_OPTS, swarmOpts))
+  const swarm = new SwarmNetworker(basestore, Object.assign({ keyPair }, DEFAULT_SWARM_OPTS, swarmOpts))
 
   return {
     storage,
-    corestore,
+    basestore,
     swarm,
     deriveSecret,
     keyPair,
@@ -65,11 +65,11 @@ async function nativeBackend (opts) {
   }
 
   async function deriveSecret (namespace, name) {
-    return corestore.inner._deriveSecret(namespace, name)
+    return basestore.inner._deriveSecret(namespace, name)
   }
 
   function close (cb) {
-    corestore.close(() => {
+    basestore.close(() => {
       swarm.close().then(cb, cb)
     })
   }

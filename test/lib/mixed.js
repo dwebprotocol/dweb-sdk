@@ -1,18 +1,18 @@
 const createNative = require('./native')
-const createHyperspace = require('./hyperspace')
+const createDHub = require('./dhub')
 
 module.exports = async function createMixed (n) {
   const nNative = Math.ceil(n / 2)
-  const nHyperspace = n - nNative
+  const nDHub = n - nNative
   const native = await createNative(nNative)
-  const hyperspace = await createHyperspace(nHyperspace)
+  const dhub = await createDHub(nDHub)
   const sdks = []
   for (let i = 0; i < n; i++) {
-    sdks.push(i % 2 === 0 ? native.sdks.shift() : hyperspace.sdks.shift())
+    sdks.push(i % 2 === 0 ? native.sdks.shift() : dhub.sdks.shift())
   }
   return { sdks, cleanup }
   function cleanup () {
     native.cleanup()
-    hyperspace.cleanup()
+    dhub.cleanup()
   }
 }

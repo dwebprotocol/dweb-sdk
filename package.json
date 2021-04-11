@@ -10,7 +10,7 @@
     "update-deps": "npm install --save dswarm@latest @basestore/networker@latest ddrive@latest basestorex@latest ddatabase@latest @ddatabase/protocol@latest @ddatabase/crypto@latest @dwebcore/ddrive-promise@latest @dwebcore/ddatabase-promise@latest",
     "test-proxy": "run-p proxy:dhub proxy:dswarm",
     "proxy:dhub": "node test/bin/dhub-webnet-servers.js",
-    "proxy:dswarm": "hyperswarm-web"
+    "proxy:dswarm": "dswarm-web"
   },
   "repository": {
     "type": "git",

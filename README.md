@@ -10,7 +10,7 @@ dDatabase protocol and it's ecosystem consists of a bunch of low level building 
 
 The dWeb SDK combines the lower level pieces of the dWeb stack into high level APIs that you can use across platforms so that you can focus on your application rather than the gritty details of how it works.
 
-The dWeb SDK can either work "natively", which means the full storage and networking stack runs directly within the SDK. Alternatively, it supports the experimental [hyperspace](https://github.com/dwebprotocol/dhub) daemon. In this mode, the SDK needs a hyperspace daemon running and will connect to it as a client.
+The dWeb SDK can either work "natively", which means the full storage and networking stack runs directly within the SDK. Alternatively, it supports the experimental [dhub](https://github.com/dwebprotocol/dhub) daemon. In this mode, the SDK needs a dhub daemon running and will connect to it as a client.
 
 ## Goals
 
@@ -20,8 +20,6 @@ The dWeb SDK can either work "natively", which means the full storage and networ
   - ✔ Web
   - ✔ Electron
   - React-Native (with [nodejs-mobile-react-native?](https://github.com/janeasystems/nodejs-mobile-react-native))
-
-## Watch the workshop [Video](https://www.youtube.com/watch?v=HyHk4aImd_I&list=PL7sG5SCUNyeYx8wnfMOUpsh7rM_g0w_cu&index=20). Try it yourself: [workshop](https://github.com/RangerMauve/dat-workshop)
 
 ## Installing Node
 
@@ -217,7 +215,7 @@ discoveryBase.on('peer-add', (peer) => {
 
 const dwebtrie = require('dwebtrie')
 
-// Pass in hypercores from the SDK into other data structures
+// Pass in dDatabases from the SDK into other data structures
 // Check out what you can do with dwebtrie from there:
 // https://github.com/dwebprotocol/dwebtrie
 const trie = dwebtrie(null, {
@@ -237,7 +235,7 @@ trie.put('key', 'value', () => {
 
 ## Running tests
 
-All available tests are run three times: For the native backend, for the hyperspace backend, and with one native and one hyperspace backend.
+All available tests are run three times: For the native backend, for the dhub backend, and with one native and one dhub backend.
 
 To run tests in Node.js simply run `npm run test` in a checkout.
 
@@ -255,13 +253,13 @@ When running in a web browser, it needs a [dwebswarm-web](https://github.com/dwe
 
 ### const SDK = require('dweb-sdk/dhub')
 
-Import the SDK contructor using the experimental *hyperspace* backend. Here, the SDK needs a running hyperspace server.
+Import the SDK contructor using the experimental *dhub* backend. Here, the SDK needs a running dhub server.
 
-When running in NodeJS, this will attempt to connect to a hyperspace server running on the same machine. When running in a web browser, this will attempt to connect to a dHub server over Websockets (experimental).
+When running in NodeJS, this will attempt to connect to a dhub server running on the same machine. When running in a web browser, this will attempt to connect to a dHub server over Websockets (experimental).
 
 *TODO:* Document how to run a Websocket dHub server.
 
-*NOTE:* The *hyperspace* backend does not yet support the `deriveSecret` function (will throw an exception if used).
+*NOTE:* The *dhub* backend does not yet support the `deriveSecret` function (will throw an exception if used).
 
 ### `const {DDatabase, DDrive, resolveName, keyPair, deriveSecret, registerExtension, close} = await SDK(opts?)`
 
@@ -280,26 +278,26 @@ Options for the *native* backend:
   - `webrtcBootstrap **Browser**: ['https://webrtc-signal.dwebx.net/'] **BROWSER**`: The WebRTC bootstrap server list used by [discovery-swarm-webrtc](https://github.com/geut/discovery-swarm-webrtc)
   - `wsProxy **Browser**: 'wss://dswarm.dwebx.net' **BROWSER**`: The Websocket proxy used for [dswarm-proxy-ws](https://github.com/dwebprotocol/dswarm-proxy-ws)
 
-Options for the *hyperspace* backend:
+Options for the *dhub* backend:
 
-- `opts.dhubOpts` Options to initialize the connection to a hyperspace server.
+- `opts.dhubOpts` Options to initialize the connection to a dhub server.
     - `client`: An optional [@dhub/client](https://github.com/dwebprotocol/dhub-client) instance. If not set a client will be created automatically.
     - `protocol`: The protocol to use. Defaults to `ws` in browsers and `uds` in Node.js.
     - `port`: If using the `ws` protocol: Port of the Websocket to connect to (default `9000`)
-    - `host`: For `ws` protocol: Hostname of the Websocket to connect to (default `localhost`). For `uds` protocol: Name of the socket (default `hyperspace`).
+    - `host`: For `ws` protocol: Hostname of the Websocket to connect to (default `localhost`). For `uds` protocol: Name of the socket (default `dhub`).
 
 Options for all backends:
 
 - `opts.basestore`: An optional [Basestore](https://github.com/dwebprotocol/basestore) instance for using as ddatabase storage.
-- `opts.corestoreOpts`: Options to pass into Basestore when it's initialized.
-- `opts.coreOpts`: This lets you configure the behavior of [DDatabase](https://github.com/dwebprotocol/ddatabase) instances
+- `opts.basestoreOpts`: Options to pass into Basestore when it's initialized.
+- `opts.baseOpts`: This lets you configure the behavior of [DDatabase](https://github.com/dwebprotocol/ddatabase) instances
   - `sparse: true`: Whether the history should be loaded on the fly instead of replicating the full history
   - `extensions`: The set of extension message types to use with this feed when replicating.
   - `valueEncoding: 'json' | 'utf-8' | 'binary'`: The encoding to use for the data stored in the ddatabase. Use JSON to store / retrieve objects.
 - `opts.driveOpts`: This lets you configure the behavior of [dDrive](https://github.com/dwebprotocol/ddrive) instances
   - `sparse: true`: Whether the history should be loaded on the fly instead of replicating the full history
 - `opts.dnsOpts`: Configure the [dWeb DNS](https://github.com/dwebprotocol/dweb-dns) resolution module. You probably shouldn't mess with this.
-  - `recordName: 'dat'`: name of .well-known file
+  - `recordName: 'dweb'`: name of .well-known file
   - `protocolRegex: /^dweb:\/\/([0-9a-f]{64})/i`: RegExp object for custom protocol
   - `hashRegex: /^[0-9a-f]{64}?$/i`: RegExp object for custom hash i.e.
   - `txtRegex: /"?dwebkey=([0-9a-f]{64})"?/i`: RegExp object for DNS TXT record of custom protocol
@@ -936,4 +934,4 @@ E.g. In the browser code:
 
 ---
 
-[Dat Project]: https://dat.foundation
+[DWeb Project]: https://dweb.com
