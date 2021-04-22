@@ -1,6 +1,6 @@
 {
   "name": "dweb-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The official SDK for the dWeb Protocol",
   "main": "index.js",
   "scripts": {
@@ -56,18 +56,18 @@
   ],
   "dependencies": {
     "@basestore/networker": "^1.0.0",
-    "@dwebcore/ddatabase-promise": "^1.0.0",
-    "@dwebcore/ddrive-promise": "^1.0.0",
-    "@dhub/client": "^1.0.0",
-    "basestorex": "^1.0.0",
-    "dwebx-dns": "^1.0.0",
-    "dwebx-encoding": "^1.0.0",
-    "ddatabase": "^10.0.0",
     "@ddatabase/crypto": "^1.0.0",
     "@ddatabase/protocol": "^1.0.0",
+    "@dhub/client": "^1.0.0",
+    "@dwebcore/ddatabase-promise": "^1.0.0",
+    "@dwebcore/ddrive-promise": "^1.0.0",
+    "basestorex": "^1.0.0",
+    "ddatabase": "^10.0.0",
     "ddrive": "^5.0.0",
     "dswarm": "^1.0.0",
     "dswarm-web": "^1.0.0",
+    "dwebx-dns": "^1.0.0",
+    "dwebx-encoding": "^1.0.0",
     "random-access-application": "^1.0.0",
     "random-access-memory": "^3.1.1"
   },

@@ -1,7 +1,7 @@
 /* global fetch */
 // TODO: Persist to local storage
 
-const DEFAULT_DNS_PROXY = 'gateway.dwebx.net'
+const DEFAULT_DNS_PROXY = 'gateway.mauve.moe'
 const NEWLINE_REGEX = /\r?\n/
 const DWEB_PROTOCOL = 'dweb://'
 
